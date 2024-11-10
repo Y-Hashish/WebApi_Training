@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <input type="text" id="deptId" />
+    <input type="button" onclick="LoadData()" />
+    <div id="div1"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        function LoadData() {
+            var dept = document.getElementById("deptId").value;
+            var divE = document.getElementById("div1");
+            
+            $.ajax({
+                url: "/api/department/" + dept
+                , success: function (result) {
+                    divE.innerHTML = result.name;
+                    console.log(result);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

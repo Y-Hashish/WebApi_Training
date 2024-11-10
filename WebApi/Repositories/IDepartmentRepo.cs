@@ -11,6 +11,7 @@ namespace WebAPI_Training.Repositories
         public void Add(Department department);
 
         public void Update(int Id ,Department department);
+        public List<Department> GetWithEmp();
 
         public void Save();
         

@@ -1,5 +1,7 @@
 
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using WebApi.Models;
 using WebAPI_Training.Models;
 using WebAPI_Training.Repositories;
 
@@ -13,7 +15,9 @@ namespace WebApi
 
             // Add services to the container.
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().ConfigureApiBehaviorOptions(
+                options => options.SuppressModelStateInvalidFilter = true
+                );
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -22,6 +26,10 @@ namespace WebApi
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("db")));
+
+
+            builder.Services.AddIdentity<ApplicationUser,IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             var app = builder.Build();
 
@@ -33,6 +41,7 @@ namespace WebApi
             }
 
             app.UseAuthorization();
+            app.UseStaticFiles();
 
 
             app.MapControllers();

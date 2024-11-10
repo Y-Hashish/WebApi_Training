@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using WebAPI_Training.Models;
 
 namespace WebAPI_Training.Repositories
@@ -30,6 +31,10 @@ namespace WebAPI_Training.Repositories
                 deptDb.Name = department.Name;
                 deptDb.MangerName = department.MangerName;
             }
+        }
+        public List<Department> GetWithEmp()
+        {
+            return context.departments.Include(d=>d.Employees).ToList();
         }
         public void Save()
         {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.DTO;
 using WebAPI_Training.Models;
 using WebAPI_Training.Repositories;
 
@@ -14,11 +15,21 @@ namespace WebAPI_Training.Controllers
         {
             dept = _dept;
         }
-        //ApplicationDbContext context;
-        //public DepartmentController(ApplicationDbContext _context)
-        //{
-        //    context = _context;
-        //}
+        [HttpGet("count")]
+        public ActionResult<List<DeptWithEmp>> Count()
+        {
+            List<Department> deptList = dept.GetWithEmp();
+            List<DeptWithEmp> deptWithEmp = new List<DeptWithEmp>();
+            foreach (Department department in deptList)
+            {
+                DeptWithEmp deptDto = new DeptWithEmp();
+                deptDto.Id = department.Id;
+                deptDto.Name = department.Name;
+                deptDto.EmpCount = department.Employees.Count();
+                deptWithEmp.Add(deptDto);
+            }
+            return deptWithEmp;
+        }
         [HttpGet]
         public IActionResult DisplayAll()
         {
