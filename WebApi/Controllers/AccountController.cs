@@ -1,6 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using WebApi.DTO;
 using WebApi.Models;
 
@@ -12,9 +17,12 @@ namespace WebApi.Controllers
     {
         private readonly UserManager<ApplicationUser> userManger;
 
-        public AccountController(UserManager<ApplicationUser> userManger)
+        public IConfiguration Config { get; }
+
+        public AccountController(UserManager<ApplicationUser> userManger, IConfiguration config)
         {
             this.userManger = userManger;
+            Config = config;
         }
 
         [HttpPost("Register")]
@@ -53,7 +61,48 @@ namespace WebApi.Controllers
                         await userManger.CheckPasswordAsync(userFromDb, userFromRequest.Password);
                     if (found)
                     {
-                        //create token
+
+                        //create token ==> design token ==> generate token
+
+
+                        // create SiginingCredential
+                        var key =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Config["JWT:Key"]));
+                        var SiginingCred = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                        //create claims 
+                        List<Claim> UserClaims = new List<Claim>();
+                        // Token generated Id change 
+                        UserClaims.Add(new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()));
+                        // the rest of claims 
+                        UserClaims.Add(new Claim(ClaimTypes.NameIdentifier, userFromDb.UserName));
+                        UserClaims.Add(new Claim(ClaimTypes.Name, userFromDb.UserName));
+
+                        var UserRole = await userManger.GetRolesAsync(userFromDb);
+                        foreach (var item in UserRole)
+                        {
+                            UserClaims.Add(new Claim(ClaimTypes.Role, item));
+                        }
+
+
+
+                        //design token
+                        JwtSecurityToken myToken = new JwtSecurityToken(
+                            issuer: Config["Jwt:Issuer"],
+                            audience: Config["JWT:AudienceIp"],
+                            expires: DateTime.Now.AddHours(1),
+                            claims: UserClaims,
+                            signingCredentials: SiginingCred
+                            );
+
+
+                        //generate token 
+
+                        return Ok(new
+                        {
+                            token = new JwtSecurityTokenHandler().WriteToken(myToken),
+                            expiration = DateTime.Now.AddHours(1),
+                        });
                     }
                     else ModelState.AddModelError("UserName", "UserName or Password id wrong");
                 }

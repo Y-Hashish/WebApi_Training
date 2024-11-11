@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.DTO;
 using WebAPI_Training.Models;
@@ -15,6 +16,7 @@ namespace WebAPI_Training.Controllers
         {
             dept = _dept;
         }
+        [Authorize]
         [HttpGet("count")]
         public ActionResult<List<DeptWithEmp>> Count()
         {
